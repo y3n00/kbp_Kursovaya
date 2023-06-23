@@ -31,11 +31,11 @@ namespace Kursovaya {
 			InitializeComponent();
 
 			this->Text = gcnew String(("HairShop | User: " + currentUsername).c_str());
+			Globals::applyTheme(this);
 			this->Show();
 
 			this->dateTimePicker1->MinDate = DateTime::Now;
 			this->dateTimePicker1->MaxDate = DateTime::Now.AddDays(30);
-			Globals::changeTheme(Globals::currentTheme, this);
 		}
 
 	protected:
@@ -416,13 +416,10 @@ namespace Kursovaya {
 			sort();
 		}
 
-		inline void updateUI() {
+		inline void updateUI() {			
 			this->Controls->Clear();
 			InitializeComponent();
-		}
-
-		inline void redrawUI() {
-			
+			Globals::applyTheme(this);
 		}
 
 		System::Void englishToolStripMenuItem_Click(System::Object^, System::EventArgs^) {
@@ -441,15 +438,18 @@ namespace Kursovaya {
 		}
 
 		System::Void darkToolStripMenuItem_Click(System::Object^, System::EventArgs^) {
-			Globals::changeTheme(Themes::Dark, this);
+			Globals::updateTheme(Themes::Dark);
+			Globals::applyTheme(this);
 		}
 
 		System::Void lightToolStripMenuItem_Click(System::Object^, System::EventArgs^) {
-			Globals::changeTheme(Themes::Light, this);
+			Globals::updateTheme(Themes::Light);
+			Globals::applyTheme(this);
 		}
 
 		System::Void colorfulToolStripMenuItem_Click(System::Object^, System::EventArgs^) {
-			Globals::changeTheme(Themes::Colorful, this);
+			Globals::updateTheme(Themes::Colorful);
+			Globals::applyTheme(this);
 		}
 	};
 }  // namespace Kursovaya

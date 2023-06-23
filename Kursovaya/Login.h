@@ -18,7 +18,7 @@ namespace Kursovaya {
 	public:
 		Login() {
 			InitializeComponent();
-			Globals::changeTheme(Globals::currentTheme, this);
+			Globals::applyTheme(this);
 		}
 
 	protected:

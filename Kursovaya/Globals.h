@@ -5,6 +5,7 @@
 #include <filesystem>
 #include <fstream>
 #include <string>
+#include <sstream>
 #include "libs/json.hpp"
 
 using namespace System::Globalization;
@@ -17,8 +18,21 @@ namespace Languages {
 	const std::string ENG = "en-US", RU = "ru-RU", BEL = "be-BY";
 };
 
-#define RGBTOINT(R,G,B)\
-	int32_t((255 << 24) | (R << 16) | (G << 8) | B)
+
+inline int32_t RGBtoInt(uint8_t R, uint8_t G, uint8_t B) {
+	return ((255 << 24) | (R << 16) | (G << 8) | B);
+}
+
+inline int32_t fromHEX(std::string HEXEDcolor) {
+	if (HEXEDcolor[0] == '#')
+		HEXEDcolor.erase(0, 1);
+	uint8_t r, g, b;
+	std::istringstream(HEXEDcolor.substr(0, 2)) >> std::hex >> r;
+	std::istringstream(HEXEDcolor.substr(2, 2)) >> std::hex >> g;
+	std::istringstream(HEXEDcolor.substr(4, 2)) >> std::hex >> b;
+	return RGBtoInt(r, g, b);
+}
+
 
 namespace Themes {
 	enum : uint16_t {
@@ -35,9 +49,9 @@ namespace Themes {
 		Theme(int fc, int bc, int tc)
 			:fc{ fc }, bc{ bc }, tc{ tc }
 		{}
-		inline auto getForeColor() { return Color::FromArgb(fc); }
-		inline auto getBackColor() { return Color::FromArgb(bc); }
-		inline auto getThirdColor() { return Color::FromArgb(tc); }
+		inline auto getForeColor() const { return Color::FromArgb(fc); }
+		inline auto getBackColor() const { return Color::FromArgb(bc); }
+		inline auto getThirdColor() const { return Color::FromArgb(tc); }
 	};
 
 }
@@ -54,12 +68,12 @@ ref struct GlobalObjects {
 [[nodiscard]] System::String^ string_cast(std::string str);
 
 struct Globals {
-	static uint16_t currentTheme;
+	static inline uint16_t currentTheme;
 	static inline nlohmann::json accsJson, mainDataJson, settingsJson;
-	static inline Themes::Theme themes[Themes::SIZE]{
-		{RGBTOINT(255, 199, 199), RGBTOINT(246, 246, 246),RGBTOINT(135, 133, 162)},
-		{RGBTOINT(33, 33, 33), RGBTOINT(13, 115, 119), RGBTOINT(50, 50, 50)},
-		{RGBTOINT(75, 66, 55), RGBTOINT(213, 160, 33), RGBTOINT(237, 231, 217)}
+	static const inline Themes::Theme themes[Themes::SIZE]{
+		{RGBtoInt(200, 140, 140), RGBtoInt(245, 245, 245),RGBtoInt(135, 135, 160)},
+		{RGBtoInt(221, 120, 153), RGBtoInt(19, 21, 23), RGBtoInt(88, 97, 116)},
+		{RGBtoInt(199, 99, 126), RGBtoInt(49, 51, 66), RGBtoInt(78, 193, 146)}
 	};
 
 	static void init() {
@@ -77,6 +91,7 @@ struct Globals {
 			t >> settingsJson;
 
 		changeLang(settingsJson["Language"].get<std::string>());
+		currentTheme = settingsJson["Theme"].get<uint16_t>();
 	}
 
 	static void changeLang(std::string language) {
@@ -88,10 +103,9 @@ struct Globals {
 		settingsJson["Language"] = language;
 	}
 
-	static void changeTheme(uint16_t c, System::Windows::Forms::Form^ form) {
+	static void applyTheme(System::Windows::Forms::Form^ form) {
 		using namespace System::Windows::Forms;
-		currentTheme = settingsJson["Theme"] = c;
-		auto& theme = themes[currentTheme];
+		const auto& theme = themes[currentTheme];
 
 		form->BackColor = theme.getBackColor();
 		for each (Control ^ control in form->Controls) {
@@ -103,6 +117,11 @@ struct Globals {
 			control->BackColor = theme.getBackColor();
 			control->ForeColor = theme.getForeColor();
 		}
+	}
+
+	static void updateTheme(uint16_t c) {
+		currentTheme = settingsJson["Theme"] = c;
+		save();
 	}
 
 	[[nodiscard]] static inline const nlohmann::json findAcc(std::string_view login) {
@@ -135,12 +154,10 @@ struct Globals {
 extern std::string currentUsername;
 
 #define RESGETSTRING(str) \
-    GlobalObjects::resources->GetString(str)
+	GlobalObjects::resources->GetString(str)
 
 #define MB_ERROR(text) \
-    MessageBox::Show(RESGETSTRING(text), RESGETSTRING("MB_ERROR"), MessageBoxButtons::OK, MessageBoxIcon::Error)
+	MessageBox::Show(RESGETSTRING(text), RESGETSTRING("MB_ERROR"), MessageBoxButtons::OK, MessageBoxIcon::Error)
 
 #define MB_WARNING(text) \
-    MessageBox::Show(RESGETSTRING(text), RESGETSTRING("MB_WARNING"), MessageBoxButtons::OK, MessageBoxIcon::Warning)
-
-#undef RGBTOINT
+	MessageBox::Show(RESGETSTRING(text), RESGETSTRING("MB_WARNING"), MessageBoxButtons::OK, MessageBoxIcon::Warning)
