@@ -14,17 +14,24 @@ constexpr auto accountsFilename = "accounts.json";
 constexpr auto settingsFilename = "settings.json";
 constexpr auto mainDataFilename = "HairShopData.json";
 
-namespace Languages {
-	const std::string ENG = "en-US", RU = "ru-RU", BEL = "be-BY";
+namespace Languages
+{
+	const std::string
+		ENG = "en-US",
+		RU = "ru-RU",
+		BEL = "be-BY";
 };
 
 
-inline int32_t RGBtoInt(uint8_t R, uint8_t G, uint8_t B) {
+[[nodiscard]] inline int32_t RGBtoInt(
+	uint8_t R,
+	uint8_t G,
+	uint8_t B) {
 	return ((255 << 24) | (R << 16) | (G << 8) | B);
 }
 
-inline int32_t fromHEX(std::string HEXEDcolor) {
-	if (HEXEDcolor[0] == '#')
+[[nodiscard]] inline int32_t fromHEX(std::string HEXEDcolor) {
+	if(HEXEDcolor[0] == '#')
 		HEXEDcolor.erase(0, 1);
 	uint8_t r, g, b;
 	std::istringstream(HEXEDcolor.substr(0, 2)) >> std::hex >> r;
@@ -34,8 +41,9 @@ inline int32_t fromHEX(std::string HEXEDcolor) {
 }
 
 
-namespace Themes {
-	enum : uint16_t {
+namespace Themes
+{
+	enum: uint16_t {
 		Light,
 		Dark,
 		Colorful,
@@ -47,13 +55,18 @@ namespace Themes {
 		int fc, bc, tc;
 	public:
 		Theme(int fc, int bc, int tc)
-			:fc{ fc }, bc{ bc }, tc{ tc }
-		{}
-		inline auto getForeColor() const { return Color::FromArgb(fc); }
-		inline auto getBackColor() const { return Color::FromArgb(bc); }
-		inline auto getThirdColor() const { return Color::FromArgb(tc); }
-	};
+			:fc{fc}, bc{bc}, tc{tc} {}
 
+		[[nodiscard]] inline auto getForeColor() const {
+			return Color::FromArgb(fc);
+		}
+		[[nodiscard]] inline auto getBackColor() const {
+			return Color::FromArgb(bc);
+		}
+		[[nodiscard]] inline auto getThirdColor() const {
+			return Color::FromArgb(tc);
+		}
+	};
 }
 
 ref struct GlobalObjects {
@@ -85,9 +98,9 @@ struct Globals {
 			System::Reflection::Assembly::GetExecutingAssembly()
 		);
 
-		if (std::ifstream a(accountsFilename); a.good())
+		if(std::ifstream a(accountsFilename); a.good())
 			a >> accsJson;
-		if (std::ifstream t(settingsFilename); t.good())
+		if(std::ifstream t(settingsFilename); t.good())
 			t >> settingsJson;
 
 		changeLang(settingsJson["Language"].get<std::string>());
@@ -108,8 +121,8 @@ struct Globals {
 		const auto& theme = themes[currentTheme];
 
 		form->BackColor = theme.getBackColor();
-		for each (Control ^ control in form->Controls) {
-			if (auto dgv = dynamic_cast<DataGridView^>(control); dgv) {
+		for each(Control ^ control in form->Controls) {
+			if(auto dgv = dynamic_cast<DataGridView^>(control); dgv) {
 				dgv->BackgroundColor = theme.getThirdColor();
 				dgv->ForeColor = theme.getForeColor();
 				continue;
@@ -124,14 +137,18 @@ struct Globals {
 		save();
 	}
 
-	[[nodiscard]] static inline const nlohmann::json findAcc(std::string_view login) {
-		return accsJson[login];
+	[[nodiscard]] static auto findAcc(std::string_view login) {
+		return accsJson.find(login) != accsJson.end() ?
+			accsJson[login] : nlohmann::json{};
 	}
 
-	static inline void addAcc(std::string_view login, std::string_view name, std::string_view password) {
+	static inline void addAcc(
+		std::string_view login,
+		std::string_view name,
+		std::string_view password) {
 		auto& acc = accsJson[login];
 		acc["Name"] = name;
-		acc["Password"] = CaesarEncrypt(password, login.length());
+		acc["Password"] = CaesarEncrypt(password, (int)login.length());
 	}
 
 	static void save() {
@@ -146,7 +163,7 @@ struct Globals {
 
 	static void loadData(const std::string& path) {
 		mainDataJson.clear();
-		if (std::filesystem::exists(path))
+		if(std::filesystem::exists(path))
 			std::ifstream(path) >> mainDataJson;
 	}
 };

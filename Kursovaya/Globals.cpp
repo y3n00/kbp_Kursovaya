@@ -1,7 +1,8 @@
 #include "Globals.h"
+
 std::string CaesarEncrypt(std::string_view str, int key) {
 	std::string out{str};
-	for (auto& ch : out)
+	for(auto& ch : out)
 		ch += key;
 	return out;
 }
