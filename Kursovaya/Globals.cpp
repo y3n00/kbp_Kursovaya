@@ -1,13 +1,12 @@
 #include "Globals.h"
-
-std::string CaesarEncrypt(std::string_view str, int key) {
+std::string CaesarEncrypt(std::string_view str, size_t key) {
 	std::string out{str};
 	for(auto& ch : out)
-		ch += key;
+		ch += (int)key;
 	return out;
 }
 
-std::string CaesarDecrypt(std::string_view str, int key) {
+std::string CaesarDecrypt(std::string_view str, size_t key) {
 	return CaesarEncrypt(str, -key);
 }
 

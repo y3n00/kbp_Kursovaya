@@ -5,14 +5,16 @@ namespace Kursovaya
 
 	using namespace System;
 	using namespace System::ComponentModel;
-	using namespace Collections;
-	using namespace Windows;
-	using namespace Forms;
-	using namespace Data;
-	using namespace Drawing;
+	using namespace System::Collections;
+	using namespace System::Windows::Forms;
+	using namespace System::Data;
+	using namespace System::Drawing;
 
-
-	public ref class Registration: public Form {
+	/// <summary>
+	/// Summary for Registration
+	/// </summary>
+	public
+	ref class Registration: public System::Windows::Forms::Form {
 	public:
 		Registration() {
 			InitializeComponent();
@@ -20,6 +22,9 @@ namespace Kursovaya
 		}
 
 	protected:
+		/// <summary>
+		/// Clean up any resources being used.
+		/// </summary>
 		~Registration() {
 			if(components) {
 				delete components;
@@ -27,33 +32,40 @@ namespace Kursovaya
 		}
 
 	private:
-		Label^ titleLabel;
-		Label^ loginLabel;
-		Label^ fullnameLabel;
-		Label^ passwLabel;
-		Label^ passwrepLabel;
-		Button^ confirmButton;
-		CheckBox^ showPasswcb;
-		TextBox^ logintb;
-		TextBox^ fullnametb;
-		TextBox^ passwtb;
-		TextBox^ passwreptb;
+		System::Windows::Forms::Label^ titleLabel;
+		System::Windows::Forms::Label^ loginLabel;
+		System::Windows::Forms::Label^ fullnameLabel;
+		System::Windows::Forms::Label^ passwLabel;
+		System::Windows::Forms::Label^ passwrepLabel;
+		System::Windows::Forms::Button^ confirmButton;
+		System::Windows::Forms::CheckBox^ showPasswcb;
+		System::Windows::Forms::TextBox^ logintb;
+		System::Windows::Forms::TextBox^ fullnametb;
+		System::Windows::Forms::TextBox^ passwtb;
+		System::Windows::Forms::TextBox^ passwreptb;
+		/// <summary>
+		/// Required designer variable.
+		/// </summary>
 		System::ComponentModel::Container^ components;
 
 #pragma region Windows Form Designer generated code
+		/// <summary>
+		/// Required method for Designer support - do not modify
+		/// the contents of this method with the code editor.
+		/// </summary>
 		void InitializeComponent(void) {
 			System::ComponentModel::ComponentResourceManager^ resources = (gcnew System::ComponentModel::ComponentResourceManager(Registration::typeid));
-			this->titleLabel = (gcnew Label());
-			this->loginLabel = (gcnew Label());
-			this->fullnameLabel = (gcnew Label());
-			this->passwLabel = (gcnew Label());
-			this->passwrepLabel = (gcnew Label());
-			this->confirmButton = (gcnew Button());
-			this->showPasswcb = (gcnew CheckBox());
-			this->logintb = (gcnew TextBox());
-			this->fullnametb = (gcnew TextBox());
-			this->passwtb = (gcnew TextBox());
-			this->passwreptb = (gcnew TextBox());
+			this->titleLabel = (gcnew System::Windows::Forms::Label());
+			this->loginLabel = (gcnew System::Windows::Forms::Label());
+			this->fullnameLabel = (gcnew System::Windows::Forms::Label());
+			this->passwLabel = (gcnew System::Windows::Forms::Label());
+			this->passwrepLabel = (gcnew System::Windows::Forms::Label());
+			this->confirmButton = (gcnew System::Windows::Forms::Button());
+			this->showPasswcb = (gcnew System::Windows::Forms::CheckBox());
+			this->logintb = (gcnew System::Windows::Forms::TextBox());
+			this->fullnametb = (gcnew System::Windows::Forms::TextBox());
+			this->passwtb = (gcnew System::Windows::Forms::TextBox());
+			this->passwreptb = (gcnew System::Windows::Forms::TextBox());
 			this->SuspendLayout();
 			// 
 			// titleLabel
@@ -86,14 +98,14 @@ namespace Kursovaya
 			resources->ApplyResources(this->confirmButton, L"confirmButton");
 			this->confirmButton->Name = L"confirmButton";
 			this->confirmButton->UseVisualStyleBackColor = true;
-			this->confirmButton->Click += gcnew EventHandler(this, &Registration::confirmButton_Click);
+			this->confirmButton->Click += gcnew System::EventHandler(this, &Registration::confirmButton_Click);
 			// 
 			// showPasswcb
 			// 
 			resources->ApplyResources(this->showPasswcb, L"showPasswcb");
 			this->showPasswcb->Name = L"showPasswcb";
 			this->showPasswcb->UseVisualStyleBackColor = true;
-			this->showPasswcb->CheckedChanged += gcnew EventHandler(this, &Registration::showPasswcb_CheckedChanged);
+			this->showPasswcb->CheckedChanged += gcnew System::EventHandler(this, &Registration::showPasswcb_CheckedChanged);
 			// 
 			// logintb
 			// 
@@ -120,7 +132,7 @@ namespace Kursovaya
 			// Registration
 			// 
 			resources->ApplyResources(this, L"$this");
-			this->AutoScaleMode = Windows::Forms::AutoScaleMode::Font;
+			this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
 			this->Controls->Add(this->passwreptb);
 			this->Controls->Add(this->passwtb);
 			this->Controls->Add(this->fullnametb);
@@ -132,28 +144,28 @@ namespace Kursovaya
 			this->Controls->Add(this->fullnameLabel);
 			this->Controls->Add(this->loginLabel);
 			this->Controls->Add(this->titleLabel);
-			this->FormBorderStyle = Windows::Forms::FormBorderStyle::FixedSingle;
+			this->FormBorderStyle = System::Windows::Forms::FormBorderStyle::FixedSingle;
 			this->MaximizeBox = false;
 			this->Name = L"Registration";
 			this->ShowIcon = false;
-			this->FormClosed += gcnew FormClosedEventHandler(this, &Registration::Registration_FormClosed);
+			this->FormClosed += gcnew System::Windows::Forms::FormClosedEventHandler(this, &Registration::Registration_FormClosed);
 			this->ResumeLayout(false);
 			this->PerformLayout();
 
 		}
 #pragma endregion
 	private:
-		Void Registration_FormClosed(Object^, FormClosedEventArgs^) {
+		System::Void Registration_FormClosed(System::Object^, System::Windows::Forms::FormClosedEventArgs^) {
 			Application::Exit();
 		}
 
-		Void showPasswcb_CheckedChanged(Object^, EventArgs^) {
-			const auto newValue = !passwtb->UseSystemPasswordChar;
-			passwtb->UseSystemPasswordChar = newValue;
-			passwreptb->UseSystemPasswordChar = newValue;
+		System::Void showPasswcb_CheckedChanged(System::Object^, System::EventArgs^) {
+			const auto value = !passwtb->UseSystemPasswordChar;
+			passwtb->UseSystemPasswordChar = value;
+			passwreptb->UseSystemPasswordChar = value;
 		}
 
-		Void confirmButton_Click(Object^, EventArgs^) {
+		System::Void confirmButton_Click(System::Object^, System::EventArgs^) {
 			if(String::IsNullOrEmpty(logintb->Text) ||
 			   String::IsNullOrEmpty(fullnametb->Text) ||
 			   String::IsNullOrEmpty(passwtb->Text) ||
@@ -161,13 +173,10 @@ namespace Kursovaya
 				MB_ERROR("FIELDS_EMPTY");
 				return;
 			}
-
-			const auto
-				login = string_cast(logintb->Text),
-				name = string_cast(fullnametb->Text),
-				passw = string_cast(passwtb->Text),
-				reppassw = string_cast(passwreptb->Text);
-
+			const auto login = string_cast(logintb->Text);
+			const auto name = string_cast(fullnametb->Text);
+			const auto passw = string_cast(passwtb->Text);
+			const auto reppassw = string_cast(passwreptb->Text);
 			if(!Globals::findAcc(login).empty()) {
 				MB_ERROR("ACC_EXIST");
 				logintb->Clear();

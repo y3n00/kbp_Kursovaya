@@ -16,30 +16,21 @@ constexpr auto mainDataFilename = "HairShopData.json";
 
 namespace Languages
 {
-	const std::string
-		ENG = "en-US",
-		RU = "ru-RU",
-		BEL = "be-BY";
-};
-
-
-[[nodiscard]] inline int32_t RGBtoInt(
-	uint8_t R,
-	uint8_t G,
-	uint8_t B) {
-	return ((255 << 24) | (R << 16) | (G << 8) | B);
+	constexpr std::string_view ENG = "en-US", RU = "ru-RU", BEL = "be-BY";
 }
 
-[[nodiscard]] inline int32_t fromHEX(std::string HEXEDcolor) {
-	if(HEXEDcolor[0] == '#')
-		HEXEDcolor.erase(0, 1);
-	uint8_t r, g, b;
-	std::istringstream(HEXEDcolor.substr(0, 2)) >> std::hex >> r;
-	std::istringstream(HEXEDcolor.substr(2, 2)) >> std::hex >> g;
-	std::istringstream(HEXEDcolor.substr(4, 2)) >> std::hex >> b;
-	return RGBtoInt(r, g, b);
-}
 
+[[nodiscard]] std::string CaesarEncrypt(std::string_view str, size_t key);
+[[nodiscard]] std::string CaesarDecrypt(std::string_view str, size_t key);
+
+[[nodiscard]] std::string string_cast(System::String^ str);
+[[nodiscard]] System::String^ string_cast(std::string str);
+
+
+[[nodiscard]] inline int32_t RGBtoInt(uint8_t R, uint8_t G, uint8_t B) {
+	constexpr uint8_t maxAlpha = 255;
+	return ((maxAlpha << 24) | (R << 16) | (G << 8) | B);
+}
 
 namespace Themes
 {
@@ -57,13 +48,15 @@ namespace Themes
 		Theme(int fc, int bc, int tc)
 			:fc{fc}, bc{bc}, tc{tc} {}
 
-		[[nodiscard]] inline auto getForeColor() const {
+		[[nodiscard]] auto getForeColor() const {
 			return Color::FromArgb(fc);
 		}
-		[[nodiscard]] inline auto getBackColor() const {
+
+		[[nodiscard]] auto getBackColor() const {
 			return Color::FromArgb(bc);
 		}
-		[[nodiscard]] inline auto getThirdColor() const {
+
+		[[nodiscard]] auto getThirdColor() const {
 			return Color::FromArgb(tc);
 		}
 	};
@@ -74,24 +67,18 @@ ref struct GlobalObjects {
 	static CultureInfo^ culture;
 };
 
-[[nodiscard]] std::string CaesarEncrypt(std::string_view str, int key);
-[[nodiscard]] std::string CaesarDecrypt(std::string_view str, int key);
-
-[[nodiscard]] std::string string_cast(System::String^ str);
-[[nodiscard]] System::String^ string_cast(std::string str);
-
 struct Globals {
 	static inline uint16_t currentTheme;
 	static inline nlohmann::json accsJson, mainDataJson, settingsJson;
-	static const inline Themes::Theme themes[Themes::SIZE]{
+	static inline const Themes::Theme themes[Themes::SIZE]{
 		{RGBtoInt(200, 140, 140), RGBtoInt(245, 245, 245),RGBtoInt(135, 135, 160)},
 		{RGBtoInt(221, 120, 153), RGBtoInt(19, 21, 23), RGBtoInt(88, 97, 116)},
-		{RGBtoInt(199, 99, 126), RGBtoInt(49, 51, 66), RGBtoInt(78, 193, 146)}
+		{RGBtoInt(199, 99, 126), RGBtoInt(49, 51, 66), RGBtoInt(209, 110, 142)}
 	};
 
 	static void init() {
 		settingsJson["Language"] = Languages::ENG;
-		currentTheme = settingsJson["Theme"] = Themes::Light;
+		settingsJson["Theme"] = Themes::Light;
 
 		GlobalObjects::resources = gcnew System::Resources::ResourceManager(
 			L"Kursovaya.Resource",
@@ -100,15 +87,15 @@ struct Globals {
 
 		if(std::ifstream a(accountsFilename); a.good())
 			a >> accsJson;
-		if(std::ifstream t(settingsFilename); t.good())
+		if(std::ifstream t(settingsFilename); t.good()) {
 			t >> settingsJson;
-
-		changeLang(settingsJson["Language"].get<std::string>());
-		currentTheme = settingsJson["Theme"].get<uint16_t>();
+			changeLang(settingsJson["Language"].get<std::string>());
+		}
+		settingsJson["Theme"].get_to(currentTheme);
 	}
 
-	static void changeLang(std::string language) {
-		const auto L = string_cast(language);
+	static void changeLang(std::string_view language) {
+		const auto L = string_cast(language.data());
 		GlobalObjects::culture = gcnew CultureInfo(L);
 		GlobalObjects::culture = CultureInfo::GetCultureInfo(L);
 		CultureInfo::DefaultThreadCurrentCulture = GlobalObjects::culture;
@@ -132,49 +119,34 @@ struct Globals {
 		}
 	}
 
-	static void updateTheme(uint16_t c) {
+	static void setTheme(uint16_t c) {
 		currentTheme = settingsJson["Theme"] = c;
 		save();
 	}
 
 	[[nodiscard]] static auto findAcc(std::string_view login) {
-		return accsJson.find(login) != accsJson.end() ?
-			accsJson[login] : nlohmann::json{};
+		return accsJson.find(login) != accsJson.end() ? accsJson[login] : nlohmann::json{};
 	}
 
-	static inline void addAcc(
-		std::string_view login,
-		std::string_view name,
-		std::string_view password) {
+	static inline void addAcc(std::string_view login, std::string_view name, std::string_view password) {
 		auto& acc = accsJson[login];
 		acc["Name"] = name;
-		acc["Password"] = CaesarEncrypt(password, (int)login.length());
+		acc["Password"] = CaesarEncrypt(password, login.length());
 	}
 
 	static void save() {
 		std::ofstream(accountsFilename, std::ios::trunc) << accsJson;
 		std::ofstream(settingsFilename, std::ios::trunc) << settingsJson;
 	}
-
-	static void saveData(std::string path) {
-		path += mainDataFilename;
-		std::ofstream(path, std::ios::trunc) << mainDataJson;
-	}
-
-	static void loadData(const std::string& path) {
-		mainDataJson.clear();
-		if(std::filesystem::exists(path))
-			std::ifstream(path) >> mainDataJson;
-	}
 };
 
 extern std::string currentUsername;
 
 #define RESGETSTRING(str) \
-	GlobalObjects::resources->GetString(str)
+    GlobalObjects::resources->GetString(str)
 
 #define MB_ERROR(text) \
-	MessageBox::Show(RESGETSTRING(text), RESGETSTRING("MB_ERROR"), MessageBoxButtons::OK, MessageBoxIcon::Error)
+    MessageBox::Show(RESGETSTRING(text), RESGETSTRING("MB_ERROR"), MessageBoxButtons::OK, MessageBoxIcon::Error)
 
 #define MB_WARNING(text) \
-	MessageBox::Show(RESGETSTRING(text), RESGETSTRING("MB_WARNING"), MessageBoxButtons::OK, MessageBoxIcon::Warning)
+    MessageBox::Show(RESGETSTRING(text), RESGETSTRING("MB_WARNING"), MessageBoxButtons::OK, MessageBoxIcon::Warning)
